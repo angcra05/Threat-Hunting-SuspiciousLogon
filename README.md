@@ -1,46 +1,63 @@
 # Threat-Hunting-SuspiciousLogon
 # Official [Cyber Range](http://joshmadakor.tech/cyber-range) Project
 
-<img width="400" src="https://github.com/user-attachments/assets/44bac428-01bb-4fe9-9d85-96cba7698bee" alt="Tor Logo with the onion and a crosshair on it"/>
-
-# Threat Hunt Report: Unauthorized TOR Usage
-- [Scenario Creation](https://github.com/joshmadakor0/threat-hunting-scenario-tor/blob/main/threat-hunting-scenario-tor-event-creation.md)
+<img width="400" src="https://i.imgur.com/jJtO5hk.png" alt="Tor Logo with the onion and a crosshair on it"/>
 
 ## Platforms and Languages Leveraged
 - Windows 11 Virtual Machines (Microsoft Azure)
 - EDR Platform: Microsoft Defender for Endpoint
+- Microsoft Sentinel
 - Kusto Query Language (KQL)
 
 ##  Scenario
+“My machine was throwing login prompts at me through the night. I ignored it and went back to sleep. Seems fine this morning. Can someone take a look?”
 
-Management suspects that some employees may be using TOR browsers to bypass network security controls because recent network logs show unusual encrypted traffic patterns and connections to known TOR entry nodes. Additionally, there have been anonymous reports of employees discussing ways to access restricted sites during work hours. The goal is to detect any TOR usage and analyze related security incidents to mitigate potential risks. If any use of TOR is found, notify management.
+Your mission: Investigate. Decide if this was nothing or something real. If it is real, reconstruct what happened, what got touched, and where the attacker ended up. Along the way you will capture 11 flags. Finish with an investigation report and a containment plan.
 
-### High-Level TOR-Related IoC Discovery Plan
+Starting point: Microsoft Defender portal (security.microsoft.com), Advanced Hunting.
 
-- **Check `DeviceFileEvents`** for any `tor(.exe)` or `firefox(.exe)` file events.
-- **Check `DeviceProcessEvents`** for any signs of installation or usage.
-- **Check `DeviceNetworkEvents`** for any signs of outgoing connections over known TOR ports.
+Focus window: 22 April 2026, 04:30 to 06:00 UTC.
+
+Target host: npt-ws01
+
+
+### High-Level IoC Discovery Plan
+
+- let start_time = datetime(2026-04-22T02:00:00.00Z);
+
+- let end_time = datetime(2026-04-22T08:00:00.00Z);
+
+- let HostInQuestion = "npt-ws01";
+
 
 ---
 
 ## Steps Taken
 
-### 1. Searched the `DeviceFileEvents` Table
+### 1. Flag ONE
 
-Searched for any file that had the string "tor" in it and discovered what looks like the user "employee" downloaded a TOR installer, did something that resulted in many TOR-related files being copied to the desktop, and the creation of a file called `tor-shopping-list.txt` on the desktop at `2024-11-08T22:27:19.7259964Z`. These events began at `2024-11-08T22:14:48.6065231Z`.
+Skill: Authentication events; recognising a suspicious logon.
+
+Objective: Mark was getting login prompts all night. Find the account the attacker actually succeeded with and then operated under — hint: it’s not Mark's own account.
+
+Capture: the value shown in DeviceLogonEvents  →  AccountName
+
+Flag: helpdesk
+
 
 **Query used to locate events:**
 
 ```kql
-DeviceFileEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where InitiatingProcessAccountName == "employee"  
-| where FileName contains "tor"  
-| where Timestamp >= datetime(2024-11-08T22:14:48.6065231Z)  
-| order by Timestamp desc  
-| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName
+let start_time = datetime(2026-04-22T02:00:00.00Z);
+let end_time = datetime(2026-04-22T08:00:00.00Z);
+let HostInQuestion = "npt-ws01";
+DeviceLogonEvents
+|where TimeGenerated between (start_time ..end_time)
+|where DeviceName == HostInQuestion
+|where ActionType contains "success"
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/71402e84-8767-44f8-908c-1805be31122d">
+**Image of Results**
+<img width="1212" alt="image" src="https://i.imgur.com/UItfVMw.png">
 
 ---
 
