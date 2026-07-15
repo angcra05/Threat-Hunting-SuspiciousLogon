@@ -69,12 +69,18 @@ Searched for any `ProcessCommandLine` that contained the string "tor-browser-win
 
 ```kql
 
-DeviceProcessEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-14.0.1.exe"  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine
+let start_time = datetime(2026-04-22T02:00:00.00Z);
+let end_time = datetime(2026-04-22T08:00:00.00Z);
+let HostInQuestion = "npt-ws01";
+DeviceLogonEvents
+|where TimeGenerated between (start_time ..end_time)
+|where DeviceName == HostInQuestion
+|where AccountName contains "helpdesk"
+|where ActionType contains "success"
+|where isnotempty( RemoteIP)
+|project TimeGenerated, AccountName, RemoteIP, RemoteIPType
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/b07ac4b4-9cb3-4834-8fac-9f5f29709d78">
+<img width="1212" alt="image" src="https://i.imgur.com/XwSFEL6.png">
 
 ---
 
