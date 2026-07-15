@@ -57,6 +57,7 @@ DeviceLogonEvents
 |where ActionType contains "success"
 ```
 **Image of Results**
+
 <img width="1212" alt="image" src="https://i.imgur.com/UItfVMw.png">
 
 ---
@@ -80,6 +81,8 @@ DeviceLogonEvents
 |where isnotempty( RemoteIP)
 |project TimeGenerated, AccountName, RemoteIP, RemoteIPType
 ```
+**Image of Results**
+
 <img width="1212" alt="image" src="https://i.imgur.com/XwSFEL6.png">
 
 ---
@@ -99,6 +102,8 @@ DeviceProcessEvents
 |where DeviceName == HostInQuestion
 |where AccountName == "helpdesk"
 ```
+**Image of Results**
+
 <img width="1212" alt="image" src="https://i.imgur.com/7erU2id.png">
 
 ---
@@ -118,6 +123,8 @@ DeviceProcessEvents
 |where DeviceName == HostInQuestion
 |where AccountName == "helpdesk"
 ```
+**Image of Results**
+
 <img width="1212" alt="image" src="https://i.imgur.com/LJGoW0I.png">
 
 ---
