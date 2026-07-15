@@ -62,9 +62,16 @@ DeviceLogonEvents
 
 ---
 
-### 2. Searched the `DeviceProcessEvents` Table
+### 2. Flag 2 — The Source
 
-Searched for any `ProcessCommandLine` that contained the string "tor-browser-windows-x86_64-portable-14.0.1.exe". Based on the logs returned, at `2024-11-08T22:16:47.4484567Z`, an employee on the "threat-hunt-lab" device ran the file `tor-browser-windows-x86_64-portable-14.0.1.exe` from their Downloads folder, using a command that triggered a silent installation.
+
+Skill: Tying a logon to an external source address.
+
+Objective: Find the external IP address the attacker authenticated from.
+
+Capture: the value shown in DeviceLogonEvents  →  RemoteIP
+
+Flag: 20.110.92.50
 
 **Query used to locate event:**
 
@@ -87,9 +94,15 @@ DeviceLogonEvents
 
 ---
 
-### 3. Searched the `DeviceProcessEvents` Table for TOR Browser Execution
+### 3. Flag 3 — The Process
 
-Searched for any indication that user "employee" actually opened the TOR browser. There was evidence that they did open it at `2024-11-08T22:17:21.6357935Z`. There were several other instances of `firefox.exe` (TOR) as well as `tor.exe` spawned afterwards.
+Skill: Process execution and command-line analysis.
+
+Objective: Find the command line that launched the implant. It carries a recognisable remote-execution signature.
+
+Capture: the value shown in DeviceProcessEvents  →  ProcessCommandLine
+
+Flag: cmd.exe /Q /c start "" "C:\Windows\Temp\WindowsUpdate.exe" 1> \Windows\Temp\uYgvso 2>&1
 
 **Query used to locate events:**
 
@@ -108,9 +121,15 @@ DeviceProcessEvents
 
 ---
 
-### 4. Searched the `DeviceNetworkEvents` Table for TOR Network Connections
+### 4. Flag 4 — The Tree
 
-Searched for any indication the TOR browser was used to establish a connection using any of the known TOR ports. At `2024-11-08T22:18:01.1246358Z`, an employee on the "threat-hunt-lab" device successfully established a connection to the remote IP address `176.198.159.33` on port `9001`. The connection was initiated by the process `tor.exe`, located in the folder `c:\users\employee\desktop\tor browser\browser\torbrowser\tor\tor.exe`. There were a couple of other connections to sites over port `443`.
+Skill: Parent-child process relationships; reconstructing the chain.
+
+Objective: Identify the immediate parent process that spawned that cmd.exe. This is what confirms remote WMI execution rather than a local user.
+
+Capture: the value shown in DeviceProcessEvents  →  InitiatingProcessFileName
+
+Flag: wmiprvse.exe 
 
 **Query used to locate events:**
 
