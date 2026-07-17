@@ -156,15 +156,16 @@ Searched for any file that had the string "tor" in it and discovered what looks 
 **Query used to locate events:**
 
 ```kql
-DeviceFileEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where InitiatingProcessAccountName == "employee"  
-| where FileName contains "tor"  
-| where Timestamp >= datetime(2024-11-08T22:14:48.6065231Z)  
-| order by Timestamp desc  
-| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName
+let start_time = datetime(2026-04-22T02:00:00.00Z);
+let end_time = datetime(2026-04-22T08:00:00.00Z);
+let HostInQuestion = "npt-ws01";
+DeviceNetworkEvents
+|where TimeGenerated between (start_time ..end_time)
+|where DeviceName == HostInQuestion
+|where InitiatingProcessAccountName == "helpdesk"
+|project TimeGenerated, DeviceName,RemoteUrl, InitiatingProcessCommandLine
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/71402e84-8767-44f8-908c-1805be31122d">
+<img width="1212" alt="image" src="https://i.imgur.com/dKV3z0a.png">
 
 ---
 
@@ -176,12 +177,16 @@ Searched for any `ProcessCommandLine` that contained the string "tor-browser-win
 
 ```kql
 
-DeviceProcessEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-14.0.1.exe"  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine
+let start_time = datetime(2026-04-22T02:00:00.00Z);
+let end_time = datetime(2026-04-22T08:00:00.00Z);
+let HostInQuestion = "npt-ws01";
+DeviceFileEvents
+|where TimeGenerated between (start_time ..end_time)
+|where DeviceName == HostInQuestion
+|where FolderPath contains "windowsupdate"
+|project TimeGenerated, DeviceName,FileName,FolderPath, InitiatingProcessCommandLine
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/b07ac4b4-9cb3-4834-8fac-9f5f29709d78">
+<img width="1212" alt="image" src="https://i.imgur.com/9FVHqxP.png">
 
 ---
 
@@ -209,15 +214,16 @@ Searched for any indication the TOR browser was used to establish a connection u
 **Query used to locate events:**
 
 ```kql
-DeviceNetworkEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where InitiatingProcessAccountName != "system"  
-| where InitiatingProcessFileName in ("tor.exe", "firefox.exe")  
-| where RemotePort in ("9001", "9030", "9040", "9050", "9051", "9150", "80", "443")  
-| project Timestamp, DeviceName, InitiatingProcessAccountName, ActionType, RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName, InitiatingProcessFolderPath  
-| order by Timestamp desc
+let start_time = datetime(2026-04-22T02:00:00.00Z);
+let end_time = datetime(2026-04-22T08:00:00.00Z);
+let HostInQuestion = "npt-ws01";
+DeviceProcessEvents
+|where TimeGenerated between (start_time ..end_time)
+|where DeviceName == HostInQuestion
+|where ProcessCommandLine contains "/tn"
+|project TimeGenerated, DeviceName, ProcessCommandLine, InitiatingProcessCommandLine
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/87a02b5b-7d12-4f53-9255-f5e750d0e3cb">
+<img width="1212" alt="image" src="https://i.imgur.com/yCSbWDl.png">
 
 ---
 
@@ -228,15 +234,16 @@ Searched for any file that had the string "tor" in it and discovered what looks 
 **Query used to locate events:**
 
 ```kql
-DeviceFileEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where InitiatingProcessAccountName == "employee"  
-| where FileName contains "tor"  
-| where Timestamp >= datetime(2024-11-08T22:14:48.6065231Z)  
-| order by Timestamp desc  
-| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName
+let start_time = datetime(2026-04-22T02:00:00.00Z);
+let end_time = datetime(2026-04-22T08:00:00.00Z);
+let HostInQuestion = "npt-ws01";
+DeviceProcessEvents
+|where TimeGenerated between (start_time ..end_time)
+|where DeviceName == HostInQuestion
+|where ProcessCommandLine contains "/tn"
+|project TimeGenerated, DeviceName, ProcessCommandLine, InitiatingProcessCommandLine
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/71402e84-8767-44f8-908c-1805be31122d">
+<img width="1212" alt="image" src="">
 
 ---
 
@@ -248,12 +255,17 @@ Searched for any `ProcessCommandLine` that contained the string "tor-browser-win
 
 ```kql
 
-DeviceProcessEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-14.0.1.exe"  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine
+let start_time = datetime(2026-04-22T02:00:00.00Z);
+let end_time = datetime(2026-04-22T08:00:00.00Z);
+let HostInQuestion = "npt-ws01";
+DeviceProcessEvents
+|where TimeGenerated between (start_time ..end_time)
+|where DeviceName == HostInQuestion
+|where LogonId == "999"
+|where ProcessCommandLine contains "net user"
+|project TimeGenerated, DeviceName, ProcessCommandLine
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/b07ac4b4-9cb3-4834-8fac-9f5f29709d78">
+<img width="1212" alt="image" src="https://i.imgur.com/RwC9lEF.png">
 
 ---
 
