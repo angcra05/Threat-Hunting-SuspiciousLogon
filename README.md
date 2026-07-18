@@ -197,11 +197,13 @@ Searched for any indication that user "employee" actually opened the TOR browser
 **Query used to locate events:**
 
 ```kql
-DeviceProcessEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where FileName has_any ("tor.exe", "firefox.exe", "tor-browser.exe")  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine  
-| order by Timestamp desc
+let start_time = datetime(2026-04-22T02:00:00.00Z);
+let end_time = datetime(2026-04-22T08:00:00.00Z);
+let HostInQuestion = "npt-ws01";
+DeviceRegistryEvents
+|where TimeGenerated between (start_time ..end_time)
+|where DeviceName == HostInQuestion
+|where isnotempty(RegistryValueName)
 ```
 <img width="1212" alt="image" src="https://github.com/user-attachments/assets/b13707ae-8c2d-4081-a381-2b521d3a0d8f">
 
