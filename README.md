@@ -245,6 +245,7 @@ DeviceProcessEvents
 |where ProcessCommandLine contains "/tn"
 |project TimeGenerated, DeviceName, ProcessCommandLine, InitiatingProcessCommandLine
 ```
+
 <img width="1212" alt="image" src="">
 
 ---
